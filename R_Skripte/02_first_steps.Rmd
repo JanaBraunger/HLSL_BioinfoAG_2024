@@ -1,0 +1,157 @@
+---
+title: "Erste Schritte in R"
+author: "Bioinfo AG"
+date: "`r Sys.Date()`"
+output:
+  html_document
+---
+
+## Erste Schritte in der R-Programmierung
+
+Hier werden wir einige grundlegende Befehle in R einführen.
+
+### Grundlegende Berechnungen
+
+Einfache Berechnungen in R können wie auf einem Taschenrechner durchgeführt werden.
+
+<mark>**Aufgabe 1: Schau dir die Ausgaben der untenstehenden Code-Abschnitte an und füge einen neuen Code-Abschnitt hinzu, der das Produkt von 5 mal 2,7 berechnet.**</mark> (Siehe die +C-Schaltfläche oben rechts in dieser Datei oder wähle im Menü „Code“ > „Code-Block einfügen“ oder verwende die entsprechende Tastenkombination.)
+
+Um herauszufinden, was in einem einzelnen Code-Block passiert, kannst du einen Code-Block ausführen, indem du auf den „Abspiel“-Button oben rechts in einem Code-Block klickst. Die Ausgabe wird direkt unter dem Code-Block in RStudio angezeigt. Du kannst auch eine einzelne Zeile ausführen, indem du den Cursor darauf setzt, oder mehrere Zeilen markieren und mit STRG + ENTER (Windows) oder CMD + ENTER (Mac) ausführen.
+
+Zwei Zahlen addieren:
+```{r}
+2 + 3
+```
+
+Eine Zahl durch eine andere teilen
+```{r}
+2/9
+```
+
+Das Quadrat einer Zahl berechnen
+```{r}
+4^2
+```
+
+### Variablenzuweisungen
+Werte können Variablen mit benutzerdefinierten Namen zugewiesen werden, entweder mit `<-` oder `=`. Diese Werte können z.B. Zahlen (numerisch), Texte (einzelne Zeichen „a“, „b“, „c“ oder eine Zeichenkette wie „abc“) oder logische Werte (`TRUE`, `FALSE`, `NA` = nicht verfügbar) sein.
+```{r}
+a <- 1
+a
+```
+
+```{r}
+a = 1
+a
+```
+
+Es ist sinnvoll, aussagekräftige Namen für die Variablen zu verwenden, die dir sagen, was sie definieren.
+```{r}
+mein_lieblingsessen <- "Pasta"
+mein_lieblingsessen
+```
+
+```{r}
+elefanten_sind_gross <- TRUE
+elefanten_sind_gross
+```
+
+Sobald eine Variable zugewiesen ist, kann sie in Berechnungen verwendet und neue Variablen basierend auf bestehenden erstellt werden.
+```{r}
+a <- 1
+b <- a + 5
+b
+```
+
+Wenn du einer bereits vorhandenen Variablen einen neuen Wert zuweist, wird der alte Wert überschrieben.
+```{r}
+a
+a <- 3
+a
+```
+
+Beachte, dass `<-` und `=` zur Zuweisung einer Variablen an einen Wert verwendet werden können. Im Gegensatz dazu wird `==` verwendet, um zu überprüfen, ob eine (vorhandene) Variable einem bestimmten Wert entspricht. Solche Vergleiche geben `TRUE` oder `FALSE` zurück, als logische Werte, die angeben, ob eine Bedingung erfüllt ist oder nicht.
+```{r}
+a == 1
+```
+
+```{r}
+a == 3
+```
+
+Wenn du eine definierte Variable löschen möchtest, verwende `rm`.
+```{r}
+rm(b)
+```
+
+Nun sollte der folgende Code einen Fehler `Error: object 'b' not found` erzeugen. Teste es, indem du den Code ausführst. Beachte, dass wir diesen Code-Block beim Generieren der HTML-Datei nicht ausführen, wie durch `eval = FALSE` angegeben.
+```{r, eval = FALSE}
+# nicht ausgewertet, würde einen Fehler erzeugen: object 'b' not found
+b
+```
+
+Du kannst die vorhandenen Variablen im RStudio-Fenster oben rechts ("Environment") oder mit dem Befehl `ls()` sehen. Beachte, dass `b` nun entfernt sein und nicht mehr existieren sollte.
+```{r}
+ls()
+```
+
+<mark>**Aufgabe 2: Füge einen neuen Code-Block hinzu, um eine neue Variable zuzuweisen, die dein Alter speichert, und führe den `ls()`-Befehl erneut aus, um zu überprüfen, ob die Variable existiert.**</mark>
+
+### Vektoren
+Du kannst mehreren Werten in Form eines Vektors einer Variablen zuweisen, indem du sie mit der Funktion `c` kombinierst. Dies können wiederum Zeichen, Zahlen oder logische Werte sein. Wenn verschiedene Datentypen gemischt werden, werden sie in der Reihenfolge logische Werte -> Zahlen -> Zeichen konvertiert, sodass alle Elemente im Vektor denselben Typ haben.
+```{r}
+mein_lieblingsessen_und_getraenk <- c("Pizza", "Cola")
+
+gemischter_vektor <- c(10, "Pizzas", "Äpfel", TRUE)
+gemischter_vektor # alle Elemente wurden hier in Zeichen umgewandelt
+class(gemischter_vektor)
+
+vektor_mit_zahlen <- c(3, 1, 35, 13)
+vektor_mit_zahlen # dies ist ein numerischer Vektor
+class(vektor_mit_zahlen)
+```
+
+Hinweis: Du kannst alle Elemente im Vektor mit `as.character` (um in Zeichen zu konvertieren), `as.numeric` (um in Zahlen zu konvertieren) oder `as.logical` (um in logische Werte zu konvertieren) umwandeln. Beachte, dass alles als Zeichen dargestellt werden kann, aber nicht umgekehrt. In solchen Fällen setzt R den Wert, der keine klare entsprechende Zahl oder logischen Wert hat, auf `NA`.
+```{r}
+as.numeric(gemischter_vektor)
+as.character(vektor_mit_zahlen)
+```
+
+...
+
+<mark>**Aufgabe 3: Erstelle deinen eigenen Vektor mit 4 Zahlen deiner Wahl. Extrahiere die ersten beiden Elemente dieses Vektors. Was passiert, wenn du versuchst, das 5. Element des Vektors zu extrahieren?**</mark>
+
+### Matrizen
+Die Arbeit mit Matrizen ähnelt sehr der Arbeit mit Vektoren, nur dass sie zwei Dimensionen statt einer haben.
+```{r}
+meine_matrix <- matrix(1:12, nrow = 3, ncol = 4)
+meine_matrix
+```
+
+Um einzelne Elemente zuzugreifen, verwenden wir nun zwei Indizes.
+```{r}
+meine_matrix[1,2] # Element in Zeile 1, Spalte 2
+
+meine_matrix[1,2:4] # Elemente in Zeile 1, Spalte 2 bis 4
+
+# R entfernt standardmäßig nicht verwendete Dimensionen beim Unterteilen
+meine_matrix[1,2:4, drop = FALSE]
+```
+
+
+### Pakete installieren
+
+Viele nützliche Funktionen sind nicht in Basis-R verfügbar, sondern werden durch spezielle Pakete bereitgestellt. Ein Beispiel ist das `ggplot2`-Paket, das wir im Kurs für das Plotten und die Datenvisualisierung verwenden werden. Neue Pakete können wie folgt installiert werden:
+```{r, eval = FALSE}
+if(!"ggplot2" %in% installed.packages()) # installiert das Paket nur, wenn es noch nicht verfügbar ist
+  install.packages("ggplot2")
+```
+
+
+Optional:
+* Du kannst das `BiocStyle`-Paket installieren und den Header dieses Dokuments zu `output: html_document` ändern in `output: BiocStyle::html_document` für ein leicht angepasstes Layout.
+* Du kannst ein Inhaltsverzeichnis zum Bericht hinzufügen, indem du `toc: true` zum Header der `.Rmd`-Datei hinzufügst. 
+
+```{r}
+sessionInfo()
+```

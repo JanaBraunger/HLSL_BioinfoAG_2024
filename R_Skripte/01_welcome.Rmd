@@ -1,0 +1,34 @@
+---
+title: Welcome!
+author: "Bioinfo AG"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+# Willkommen zur Bioinfo AG
+
+In dieser Datei testen wir RStudio und schauen uns den generellen Aufbau an.
+
+## Step 1: Kennenlernen von RMarkdown
+
+Das ist eine RMarkdown `.Rmd` Datei. RMarkdown erlaubt es Text direkt mit Code zu verknüpfen.
+
+```{r}
+# Die grauen Felder sind für Code
+# Mit dem hashtag Symbol kennzeichnen wir, dass diese Zeile ein Kommentar ist, der nicht als Code ausgeführt wird
+```
+
+```{r my_code_chunk}
+# Code chunks können auch benannt werden, z.B. hier 'my_code_chunk'. 
+# Diese Namen erscheinen nicht im output, können aber beim Finden eines Fehlers hilfreich sein
+```
+
+```{r hello_world}
+# Ausgabe eines ersten Satzes
+print("Hello world!")
+```
+
+
+## Step 2: Erstellen eines html reports
+
+Klicke auf den "**Knit**" Knopf oben in der Mitte, um einen `.html` report zu erstellen, der sowohl den Text zeigt, als auch den Code ausführt. Das erstellte `.html` file wird automatisch geöffnet und im gleichen Ordner wie das Rmd file gespeichert.
