@@ -148,6 +148,29 @@ if(!"ggplot2" %in% installed.packages()) # installiert das Paket nur, wenn es no
 ```
 
 
+### Plotting
+Im folgenden üben wir Diagramme mit ggplot zu erstellen und verwenden dazu den mtcars dataframe:
+```{r}
+# erste Zeilen eines Datensatzes anschauen
+head(mtcars)
+data <- rownames_to_column(mtcars, var = "cars")
+head(data)
+```
+
+**Aufgabe** 
+Verwende ?ggplot um Hilfestellung zu ggplot zu bekommen und versuche die folgenden Abbildungen zu erstellen
+```{r}
+ggplot(data, aes(x = cars, y = qsec)) +
+  geom_bar(stat = "identity")
+```
+
+a) Plotte ein Balkendiagram mit der qsec Zeit für jedes Auto. Füge außerdem einen Titel und Achsenbeschriftungen hinzu.
+b) Plotte die Anzahl an Autos mit 4, 6 und 8 Zylindern als Histogramm
+c) Plotte einen scatter plot, in dem du zwei Variablen gegeneinander aufträgst, z.B. disp und qsec und färbe die Punkte nach cyl an
+d) Berechne für die 3 Gruppen an Zylindern (4,6,8 cyl) den Mittelwert von qsec und veranschauliche das Ergebnis
+e) Wie kann man den grauen Hintergrund in ggplot ändern?
+f) Hast du eine Idee, wie man zusaetzlich zum Mittelwert in d) auch noch die Streuung der Daten pro Gruppe darstellen könnte?
+
 Optional:
 * Du kannst das `BiocStyle`-Paket installieren und den Header dieses Dokuments zu `output: html_document` ändern in `output: BiocStyle::html_document` für ein leicht angepasstes Layout.
 * Du kannst ein Inhaltsverzeichnis zum Bericht hinzufügen, indem du `toc: true` zum Header der `.Rmd`-Datei hinzufügst. 
