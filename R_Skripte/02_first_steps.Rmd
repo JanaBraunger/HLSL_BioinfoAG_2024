@@ -144,7 +144,7 @@ meine_matrix[1,2:4, drop = FALSE]
 Viele nützliche Funktionen sind nicht in Basis-R verfügbar, sondern werden durch spezielle Pakete bereitgestellt. Ein Beispiel ist das `ggplot2`-Paket, das wir im Kurs für das Plotten und die Datenvisualisierung verwenden werden. Neue Pakete können wie folgt installiert werden:
 ```{r, eval = FALSE}
 if(!"ggplot2" %in% installed.packages()) # installiert das Paket nur, wenn es noch nicht verfügbar ist
-  install.packages("ggplot2")
+  install.packages("tidyverse")
 ```
 
 
@@ -166,8 +166,32 @@ ggplot(data, aes(x = cars, y = qsec)) +
 
 a) Plotte ein Balkendiagram mit der qsec Zeit für jedes Auto. Füge außerdem einen Titel und Achsenbeschriftungen hinzu.
 b) Plotte die Anzahl an Autos mit 4, 6 und 8 Zylindern als Histogramm
+
+```{r}
+ggplot(data, aes(x = cyl)) + 
+  geom_histogram() +
+  xlab("Zylinder") +
+  ggtitle("Title")
+  #labs(x ="Anzahl an Zylindern", y = "Haeufigkeit")
+```
+
 c) Plotte einen scatter plot, in dem du zwei Variablen gegeneinander aufträgst, z.B. disp und qsec und färbe die Punkte nach cyl an
+```{r}
+ggplot(data, aes(x = mpg, y = qsec, color = cyl, shape = cyl)) + 
+  geom_point() 
+```
+
 d) Berechne für die 3 Gruppen an Zylindern (4,6,8 cyl) den Mittelwert von qsec und veranschauliche das Ergebnis
+```{r}
+qsec_means <- data %>%
+  group_by(cyl) %>%
+  summarize(mean = mean(qsec))
+
+ggplot(qsec_means, aes(x = cyl, y = mean)) + 
+  geom_point() 
+```
+
+
 e) Wie kann man den grauen Hintergrund in ggplot ändern?
 f) Hast du eine Idee, wie man zusaetzlich zum Mittelwert in d) auch noch die Streuung der Daten pro Gruppe darstellen könnte?
 
