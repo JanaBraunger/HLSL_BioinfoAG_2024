@@ -1,0 +1,81 @@
+---
+title: "How_To_Norm_Distribution"
+author: "Biomathe_AG"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+## Normalverteilung
+
+Der Befehl, um sich zufällige Werte einer Normalverteilung ausgeben zu lassen, ist "rnorm()". Mit "?rnorm" könnt ihr euch die Variablen dieser Funktion angeben lassen. Erstellt selbst Werte, die das Gewicht von 5000 Neugeborenen darstellen und speichert diese als Variable ab. Ein Gewicht von 3500g ist der Standard und zwischen 2800g und 4200g wird das Gewicht als normal angesehen (99,7%). 
+
+```{r create norm_distribution, include=FALSE}
+?rnorm
+```
+
+## Plotten
+
+Um Funktionen, die nicht im Base-R Environment gegeben sind, zu nutzen, müsst ihr die Packages laden, das macht ihr mit dem "library()"-Befehl.
+Zum Plotten wird in R meistens das Package "ggplot2" verwendet.
+```{r load ggplot2, include = FALSE}
+library(ggplot2)
+```
+
+### Histogramme
+
+Der Befehl, der euch ein Histogramm der Daten plotten wird, lautet:
+ggplot(data = ..., aes(x = ...)) + geom_histogram(). Ersetzt hierbei die "..." entsprechend eurer Daten. Kleiner Tipp, ggplot akzeptiert nur Dataframes. Also holt euch eine neue Variable und schreibt in diese den Dataframe eures Vektors mit "data.frame(x)".
+
+```{r plot histogram of norm_distribution, include = FALSE}
+ggplot(data = ..., aes(x = ...)) + geom_histogram()
+```
+
+### Boxplots
+
+Eine alternative Methode, um sich die Daten anzeigen zu lassen, sind Boxplots. Hierfür ersetzt ihr "geom_histogram()" einfach durch "geom_boxplot()". 
+
+```{r boxplot, include = FALSE}
+
+```
+
+
+Generell ist es "schwieriger", mehrere Boxplots nebeneinander zu plotten, hierfür muss der Dataframe in eine bestimmte Form gebracht werden, alle Einträge, die geplottet werden sollen, müssen in einer Spalte stehen, während die zweite Spalte definiert, welcher Gruppe die jeweiligen Werte angehören. Probiert es doch einfach mal, folgende Verteilungen in einem Dataframe zu kombinieren und als Boxplots darzustellen.
+
+```{r boxplot_advanced, include = FALSE}
+dataframe1 = data.frame(val = rnorm(1000, 67, 2.5), sample = 'm1')
+dataframe2 = data.frame(val = rnorm(1000, 110, 4.5), sample = 'm2')
+dataframe3 = rnorm(1000, 45, 2)
+```
+
+qq plot
+auf unseren Daten anschauen
+
+## t-test
+
+Da ihr jetzt schon eine Normalverteilung mit Werten habt, könnt ihr auch andere Dinge testen, z.B. ob der Mittelwert der gesamten Population wirklich dem entspricht, was er sein soll. Dies macht ihr mit "t.test(x, mu=...)". Für "mu" setzt ihr einfach den Wert für euren erwarteten Mittelwert ein und für x dann einfach euren initiellen Vektor.
+
+```{r t_test, include = FALSE}
+
+```
+
+Was ist, wenn ihr euren Vektor mit folgendem Vektor rnorm(1000, mean=1.1, sd = 0.1) multipliziert? Findet eine deutliche Veränderung statt? Und wenn ja, findet der t-Test diese?
+
+```{r t_test_2, include = FALSE}
+
+```
+
+Welche Korrelation erwartet ihr, wenn ihr euch wie folgt Werte erstellt:
+cor_values = seq(1,1000,by=1)
+cor_values = cbind(cor_values, cor_values)
+colnames(cor_values) = c("x_value","y_value")
+
+```{r correlation, include = FALSE}
+
+```
+
+Was ist, wenn ihr die zweite Spalte mit rnorm(1000, mean=-1.1, sd = 0.1) multipliziert? Lasst es euch mit ggplot plotten. Hier müsst ihr dann "geom_histogram()" mit "geom_point()" ersetzen. Berechnet danach den Korrelationskoeffizienten aus.
+
+```{r correlation_plot, include = FALSE}
+
+```
+

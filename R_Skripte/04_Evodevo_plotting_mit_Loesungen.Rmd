@@ -1,0 +1,242 @@
+---
+title: "Evodevo Plotting"
+author: "Bioinfo AG"
+date: "`r Sys.Date()`"
+output:
+  html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Import der nötigen Pakete und Daten
+```{r libraries, message = FALSE, warning = FALSE}
+library(tidyverse)
+```
+
+Als erstes laden wir unseren Datensatz, die menschliche Genexpression für 10 Gene in verschiedenen
+Geweben zu verschiedenen Zeitpunkten, den wir im vorherigen Rmd erstellt haben. 
+
+```{r}
+data <- read_csv('../Daten/Human_subset_10_genes.csv', show_col_types = FALSE)
+
+# damit nachher die Zeitpunkte in der richtigen Reihenfolge sortiert werden, legen
+# wir zu Beginn einmal die Reihenfolge fest
+alle_Zeitpunkte <- c("4wpc", "5wpc", "6wpc", "7wpc", "8wpc", "9wpc", "10wpc", "11wpc",
+                     "12wpc", "13wpc", "16wpc", "18wpc", "19wpc", "20wpc", "newborn",    
+                     "infant", "toddler", "school", "teenager", "youngAdult",
+                     "youngMidAge", "olderMidAge", "senior")
+data$Zeitpunkt <- factor(data$Zeitpunkt, levels = alle_Zeitpunkte)
+
+head(data)  
+# Falls ihr hier einen Fehler bekommt, dass die Datei nicht existiert, dann müsst
+# ihr eventuell euer working directory ändern und den korrekten Pfad zu euren
+# Daten eingeben, z.B. so setwd("~/Documents/Privat/Bioinfo_lsl/HLSL_BioinfoAG_2024/")
+```
+
+# Exploration des Datensatzes
+Welche Gewebe kommen in dem Datensatz alle vor?
+```{r}
+unique(data$Gewebe)
+```
+ 
+Aufgabe: Welche Zeitpunkte und Gene sind in dem Datensatz enthalten?
+```{r}
+# füge deinen eigenen Code hier ein
+unique(data$Zeitpunkt)
+unique(data$Gen)
+# Tipp: nutze dieselben Funktionen wie im vorherigen chunk
+```
+
+Was ist die minimale Genexpression?
+```{r}
+min(data$RPKM)
+```
+
+Aufgabe: Was ist die maximale Genexpression? Tipp: Nutze die Funktion max().
+```{r}
+max(data$RPKM)
+```
+
+
+Was ist die mittlere Genexpression?
+```{r}
+mean(data$RPKM)
+```
+
+Und was ist die mittlere Expression pro Gen?
+```{r}
+data %>% group_by(Gen) %>%
+  summarize(mean_RPKM = mean(RPKM))
+```
+Manche Gene sind also deutlich höher exprimiert als andere, d.h. manche DNA-Abschnitte 
+werden deutlich öfter abgelesen und dann mehr des Proteins produziert.
+
+Aufgabe: Und was ist die mittlere Expression der ausgewählten Gene pro Gewebe?
+```{r}
+data %>% group_by(Gen, Gewebe) %>%
+  summarize(mean_RPKM = mean(RPKM))
+```
+
+
+# Plotting
+Als nächstes möchten wir ein paar Abbildungen (=plots) mit unseren Daten erstellen. 
+Es gibt dabei viele verschiedene Arten an plots und je nach dem, was man darstellen möchte 
+und ob es sich z.B. um diskrete oder kontinuierliche Daten handelt, 
+ist die eine oder andere Darstellung besser geeignet. 
+
+## 1. Balkendiagramm: Anzahl der gemessenen Zeitpunkte pro Organ
+In dem Datensatz, den wir hier nutzen, konnte nicht für jeden Zeitpunkt jedes Organ 
+gemessen werden. Daher können wir uns zunächst einmal anschauen, wie viele Zeitpunkte
+(der insgesamt 23 möglichen) in jedem Organ gemessen wurden.
+
+```{r}
+# dazu wählen wir zunächsten die Spalten Gewebe und Zeitpunkt aus
+Anzahl_Zeitpunkte <- data %>% subset(select = c(Gewebe, Zeitpunkt)) %>% 
+  # und reduzieren die Anzahl an Zeilen, so dass jede Zeile nur einmal vorkommt
+  distinct() %>% 
+  # dann gruppieren wir die Zeilen nach Gewebe
+  group_by(Gewebe) %>% 
+  # und zählen pro Gewebe die Anzahl an Zeitpunkten
+  summarize(Zeitpunktzahl = n())
+
+Anzahl_Zeitpunkte
+```
+
+Und jetzt wollen wir die Ergebnisse in einem Balkendiagramm darstellen:
+```{r}
+# dazu nutzen wir das Paket ggplot2, das bereits in tidyverse enthalten ist
+# zuerst gibt man den data.frame mit seinen Daten an, sowie was auf die 
+# x- und y-Achse geplottet werden soll
+ggplot(Anzahl_Zeitpunkte, aes(x = Gewebe, y = Zeitpunktzahl)) +
+  # danach gibt man an, was für einen Plottypen man möchte, also z.B. ein Balkendiagramm (=geom_bar)
+  geom_bar(stat = 'identity')
+```
+
+Wir können den Plot auch rotieren, indem wir x und y vertauschen:
+```{r}
+ggplot(Anzahl_Zeitpunkte, aes(x = Zeitpunktzahl, y = Gewebe)) +
+  geom_bar(stat = 'identity')
+```
+
+Man kann die Balken auch färben, z.B. alle in blau:
+```{r}
+ggplot(Anzahl_Zeitpunkte, aes(x = Gewebe, y = Zeitpunktzahl)) +
+  geom_bar(stat = 'identity', fill = 'blue')
+```
+
+Aufgabe: Färbe die Balken in einer anderen Farbe deiner Wahl, z.B. green, red.
+
+Man kann die Balken auch alle unterschiedlich färben, z.B. nach Gewebe oder anderen Gruppen:
+```{r}
+ggplot(Anzahl_Zeitpunkte, aes(x = Gewebe, y = Zeitpunktzahl, fill = Gewebe)) +
+  geom_bar(stat = 'identity')
+```
+
+Außerdem kann man den Stil des Hintergrundes (sogenanntes theme) seines Plots anpassen:
+```{r}
+ggplot(Anzahl_Zeitpunkte, aes(x = Gewebe, y = Zeitpunktzahl, fill = Gewebe)) +
+  geom_bar(stat = 'identity') +
+  theme_light()
+```
+
+Aufgabe: Teste theme_classic(). Alle Optionen gibt es hier: https://ggplot2.tidyverse.org/reference/ggtheme.html
+
+Außerdem kann man die Balken auf der x-Achse auch nach ihrer Größe sortieren:
+```{r}
+# dazu speichern wir die Reihenfolge als factor levels
+Anzahl_Zeitpunkte$Gewebe <- reorder(Anzahl_Zeitpunkte$Gewebe, Anzahl_Zeitpunkte$Zeitpunktzahl)
+
+ggplot(Anzahl_Zeitpunkte, aes(x = Gewebe, y = Zeitpunktzahl)) +
+  geom_bar(stat = 'identity')
+```
+
+
+Des Weiteren kann man z.B. die Beschriftung der x- und y-Achse ändern und einen Titel hinzufügen:
+```{r}
+ggplot(Anzahl_Zeitpunkte, aes(x = Gewebe, y = Zeitpunktzahl, fill = Gewebe)) +
+  geom_bar(stat = 'identity') +
+  xlab('Neue Beschriftung der x-Achse') +
+  ylab('Neue Beschriftung der y-Achse') +
+  ggtitle('Mein fancy Plot')
+```
+
+Und wenn ihr das Endergebnis jetzt als png Bild speichern möchtet:
+```{r}
+# Hier den Pfad abändern, zu der Stelle, wo ihr es speichern möchtet
+# Also z.B. wenn ihr einen Abbildungen Ordner in dem geclonten repo erstellt, 
+# dann funktioniert der angegebene Pfad
+ggsave('../Abbildungen/fancy_barplot.png')
+```
+
+
+## 2. Balkendiagramm: Mittlere Genexpression pro Gewebe
+Aufgabe: Als nächstes wollen wir für ein Gen z.B. TP53 die mittlere Genexpression
+pro Gewebe darstellen.
+```{r}
+# dazu berechnen wir erstmal die Mittelwerte über alle Zeitpunkte
+mean_RPKM <- data %>% group_by(Gen, Gewebe) %>%
+  summarize(mean_RPKM = mean(RPKM)) %>%
+  # und wählen dann ein Gen aus
+  filter(Gen == 'TP53')
+head(mean_RPKM)
+
+# und jetzt plotten wir die Ergebnisse wieder mit ggplot
+# füge hier deinen Code ein (analog zu den Beispielen oben)
+```
+
+Aufgabe: Schau dir denselben Plot auch für andere Gene an. Bei welchen Genen sind 
+die Unterschiede pro Organ sehr unterschiedlich, bei welchen eher ähnlich?
+```{r}
+ggplot(mean_RPKM, aes(x=Gewebe, y = mean_RPKM)) +
+  geom_bar(stat='identity')
+```
+
+
+## 3. Zeitliche Entwicklung der Genexpression
+Als nächstes möchten wir uns den zeitlichen Verlauf der Genexpression anschauen und 
+nicht mehr wie davor nur die Mittelwerte über alle Zeitpunkte betrachten. 
+
+```{r}
+# dazu wählen wir ein beliebiges Gen aus und wählen die entsprechenden 
+# Zeilen aus unserem Datensatz aus
+Lieblings_Gen = 'HBG2'
+Gen_Daten <- filter(data, Gen == Lieblings_Gen)
+
+ggplot(Gen_Daten, aes(x = Zeitpunkt, y = RPKM, col = Gewebe, group = Gewebe)) + 
+  # wir fügen jeden Messwert als Punkt ein
+  geom_point() +
+  # und verbinden zusätzlich die Punkte mit einer Linie
+  geom_line() + 
+  # wir möchten mehrere subplots nebeneinander, einen pro Gewebe
+  facet_grid(~Gewebe) + 
+  # kleine Schönheitskorrektur: wir entfernen die Beschriftung der x-Achse, 
+  # dass es nicht zu voll wird
+  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank()) +
+  # wir fügen eine graue, vertikale Linie ein, damit man erkennt, wo die Geburt ist
+  geom_vline(xintercept = "newborn", linetype = "dashed", col = "gray") +
+  # jetzt beschriften wir noch die y-Achse und geben dem Plot einen Title
+  ylab('Genexpression') +
+  ggtitle(Lieblings_Gen)
+```
+
+HMGA2 wird also zu Beginn der Embryonalentwicklung sehr hoch exprimiert und nach
+der Geburt im gesunden Zustand quasi gar nicht mehr. Es kann jedoch bei bestimmten
+Krankheiten wieder aktiviert werden.
+
+Aufgabe: 
+1. Wie verändert sich die Darstellung des Plots, wenn du jeweils eine Zeile zwischen 
+208 und 221 auskommenierst (indem du ein # an den Zeilenbeginn setzt)?
+2. Schau dir denselben Plot auch mal für andere Gene in unserem Datensatz an.
+3. Für die Schnellen: was für Plots könntest du für den Datensatz sonst noch generieren?
+Werde kreativ und probiere einfach mal ein paar Alternativen aus!
+
+
+```{r}
+# Beispiel zu 3.
+unique(data$Gen)
+subset = filter(data, Gen == "HBG2")
+ggplot(subset, aes(x = Gewebe, y = RPKM)) +
+  geom_boxplot()
+```

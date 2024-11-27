@@ -1,0 +1,144 @@
+---
+title: "Evodevo Preprocessing"
+author: "Bioinfo AG"
+date: "`r Sys.Date()`"
+output:
+  html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Import der nötigen Pakete und Daten
+```{r libraries, message = FALSE, warning = FALSE}
+library(tidyverse)
+```
+
+Als erstes laden wir unseren Datensatz, die menschliche Genexpression in verschiedenen
+Geweben zu verschiedenen Zeitpunkten (Embryonalentwicklung bis ins Erwachsenenalter). Die 
+Datei, die hier eingelesen wird, kann hier heruntergeladen werden: https://apps.kaessmannlab.org/evodevoapp/
+
+```{r}
+full_data <- read_delim('../Daten/Human_rpkm.txt', show_col_types = FALSE) %>%
+  column_to_rownames(var = 'Names') # erste Spalte der Tabelle soll als Zeilenname genutzt werden
+  
+# Falls ihr hier einen Fehler bekommt, dass die Datei nicht existiert, dann müsst
+# ihr eventuell euer working directory ändern und den korrekten Pfad zu euren
+# Daten eingeben, z.B. so setwd("~/Documents/Privat/Bioinfo_lsl/HLSL_BioinfoAG_2024/")
+```
+
+# Exploration des Datensatzes
+Wie viele Zeilen und Spalten hat die Tabelle?
+```{r}
+# Dimensionen einer Tabelle (erste Zahl: Anzahl an Zeilen, zweite: Anzahl an Spalten)
+dim(full_data)
+```
+
+Was sind die Zeilen?
+```{r}
+# Zeile = row, Zeilennamen = rownames
+# Wie heißen die ersten 10 Zeilen?
+rownames(full_data)[1:10]
+```
+
+Jede Zeile steht für ein Gen, welches hier über eine ID 'ENSG...' angegeben wird.
+Und was sind die Spalten?
+```{r}
+# Spalte = column, Spaltennamen = columnnames
+# Wie heißen die ersten 53 Spalten?
+colnames(full_data)[1:53]
+```
+
+Die Spalten sind die verschiedenen Proben, die in der Studie gemessen wurden und die 
+Probenbezeichnung setzt sich aus 3 Teilen zusammen: 
+1. Organ: die Genexpression wurde in 7 verschiedenen Organen gemessen: Brain (Gehirn), 
+Cerebellum (Kleinhirn), Heart (Herz), Kidney (Niere), Liver (Leber),
+Ovary (Eierstöcke), Testis (Hoden).
+2. Zeitpunkt: der zweite Teil beschreibt den Zeitpunkt, an dem die Probe entnommen und
+gemessen wurde, z.B. im Teenager Alter. wpc steht für weeks post conception, also Anzahl 
+der Wochen nach Befruchtung.
+3. Nummer der Probe pro Organ: zusätzlich wurden die Proben pro Organ durchnummeriert, 
+da teilweise mehrere Proben zum gleichen Zeitpunkt gemessen wurden.
+
+# Preprocessing
+Für die Analyse des Datensatzes ist ein anderes Format der Tabelle geschickter, in welchem 
+jeder Messwert in einer eigenen Zeile steht. Das sieht dann so aus: 
+```{r}
+long_format <- full_data %>% 
+  rownames_to_column(var = 'Gen_ID') %>%
+  gather(key = 'Name', value = 'RPKM', -Gen_ID) %>%
+  separate(Name, into = c('Gewebe', 'Zeitpunkt', 'Nummer'), sep = "\\.")
+head(long_format)
+dim(long_format)
+```
+
+
+Ein paar zusätzliche Schönheitsoperationen: 
+1. Wir fassen Proben desselben Gewebes und Zeitpunktes zusammen und nehmen den 
+Mittelwert für jedes Gen.
+2. Wir nummerieren die Zeitpunkte durch, damit wir die Reihenfolge wissen.
+3. Da sich niemand die Gen-IDs wie ENSG00000141510 merken möchte, arbeitet man typischerweise
+mit handlichereren Gennamen wie z.B. TP53. Die Informationen, welche ID welchen Namen hat, kann
+man über Datenbanken wie biomart laden.
+```{r}
+# 1. Mittelwerte pro Gen, Gewebe, Zeitpunkt
+long_format <- long_format %>% 
+  group_by(Gen_ID, Gewebe, Zeitpunkt) %>%
+  summarize(RPKM = mean(RPKM))
+
+# 2. Nummerierung der Zeitpunkte
+long_format$Zeitpunkt[long_format$Zeitpunkt == "Senior"] <- "senior"
+long_format$Zeitpunkt[long_format$Zeitpunkt == "youngTeenager"] <- "teenager"
+long_format$Zeitpunkt[long_format$Zeitpunkt == "oldTeenager"] <- "teenager"
+alle_Zeitpunkte <- c("4wpc", "5wpc", "6wpc", "7wpc", "8wpc", "9wpc", "10wpc", "11wpc",
+                     "12wpc", "13wpc", "16wpc", "18wpc", "19wpc", "20wpc", "newborn",    
+                     "infant", "toddler", "school", "teenager", "youngAdult",
+                     "youngMidAge", "olderMidAge", "senior")
+long_format$Zeitpunkt <- factor(long_format$Zeitpunkt, levels = alle_Zeitpunkte)
+long_format <- left_join(long_format, data.frame(Zeitpunkt = alle_Zeitpunkte, 
+                                                 Zeit_Nr = seq(1, 23)))
+
+# 3. Gen-IDs zu Gennamen
+library(biomaRt)
+mart <- useEnsembl(biomart = "ENSEMBL_MART_ENSEMBL", 
+                   dataset = "hsapiens_gene_ensembl")
+gene_annotations <- getBM(attributes=c("chromosome_name", "ensembl_gene_id", 
+                                       "description", "hgnc_symbol"), 
+                          mart=mart, 
+                          filters=c("chromosome_name","biotype"),
+                          values=list(c(1:22,"X","Y"),"protein_coding")) %>%
+  data.frame() %>%
+  dplyr::rename(Gen = hgnc_symbol, Gen_ID = ensembl_gene_id, Chromosom = chromosome_name,
+                Beschreibung = description)
+long_format <- left_join(long_format, gene_annotations, by = 'Gen_ID') %>% 
+  relocate(Gen, Gewebe, Zeitpunkt, RPKM, Gen_ID, Zeit_Nr, Chromosom, Beschreibung)
+head(long_format)
+```
+ 
+Damit die Datei nicht zu groß und unübersichtlich ist, wählen wir jetzt 10 Gene aus
+und speichern die Ergebnisse als .csv Datei. Diese Datei findet ihr bereits im Github 
+Daten Ordner und wird im Folgenden verwendet.
+```{r}
+data_subset <- filter(long_format, Gen %in% c('TP53', 'HBG2', 'APOD', 'ADIRF', 
+                                              'HBA1', 'HMGA2', 'LIN28B', 'A2M', 
+                                              'AR', 'TBP'))
+write_csv(data_subset, '../Daten/Human_subset_10_genes.csv')
+```
+
+
+# Auswählen der Gene mit größter Varianz
+```{r}
+gene_variance <- long_format %>% group_by(Gen) %>%
+  summarize(variance = var(RPKM)) %>%
+  arrange(variance) %>%
+  slice_max(variance, n = 5000)
+
+variable_genes <- long_format %>% filter(Gen %in% gene_variance$Gen) %>% 
+  group_by(Gen, Gewebe, Zeitpunkt, Zeit_Nr, Gen_ID, Chromosom, Beschreibung) %>% 
+  summarize(RPKM = mean(RPKM))
+write_csv(variable_genes, '../Daten/Human_most_variable_genes.csv')
+```
+
+
+
