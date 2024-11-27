@@ -44,39 +44,34 @@ unique(data$Gewebe)
 Aufgabe: Welche Zeitpunkte und Gene sind in dem Datensatz enthalten?
 ```{r}
 # füge deinen eigenen Code hier ein
-unique(data$Zeitpunkt)
-unique(data$Gen)
-# Tipp: nutze dieselben Funktionen wie im vorherigen chunk
 ```
 
 Was ist die minimale Genexpression?
 ```{r}
-min(data$RPKM)
+
 ```
 
 Aufgabe: Was ist die maximale Genexpression? Tipp: Nutze die Funktion max().
 ```{r}
-max(data$RPKM)
+
 ```
 
 
 Was ist die mittlere Genexpression?
 ```{r}
-mean(data$RPKM)
+
 ```
 
 Und was ist die mittlere Expression pro Gen?
 ```{r}
-data %>% group_by(Gen) %>%
-  summarize(mean_RPKM = mean(RPKM))
+
 ```
 Manche Gene sind also deutlich höher exprimiert als andere, d.h. manche DNA-Abschnitte 
 werden deutlich öfter abgelesen und dann mehr des Proteins produziert.
 
 Aufgabe: Und was ist die mittlere Expression der ausgewählten Gene pro Gewebe?
 ```{r}
-data %>% group_by(Gen, Gewebe) %>%
-  summarize(mean_RPKM = mean(RPKM))
+
 ```
 
 
@@ -126,13 +121,9 @@ ggplot(Anzahl_Zeitpunkte, aes(x = Gewebe, y = Zeitpunktzahl)) +
   geom_bar(stat = 'identity', fill = 'blue')
 ```
 
-Aufgabe: Färbe die Balken in einer anderen Farbe deiner Wahl, z.B. green, red.
-
-Man kann die Balken auch alle unterschiedlich färben, z.B. nach Gewebe oder anderen Gruppen:
-```{r}
-ggplot(Anzahl_Zeitpunkte, aes(x = Gewebe, y = Zeitpunktzahl, fill = Gewebe)) +
-  geom_bar(stat = 'identity')
-```
+Aufgabe: 
+a) Färbe die Balken in einer anderen Farbe deiner Wahl, z.B. green, red.
+b) Färbe die Balken nach der Gewebespalte im data frame
 
 Außerdem kann man den Stil des Hintergrundes (sogenanntes theme) seines Plots anpassen:
 ```{r}
@@ -187,11 +178,7 @@ head(mean_RPKM)
 ```
 
 Aufgabe: Schau dir denselben Plot auch für andere Gene an. Bei welchen Genen sind 
-die Unterschiede pro Organ sehr unterschiedlich, bei welchen eher ähnlich?
-```{r}
-ggplot(mean_RPKM, aes(x=Gewebe, y = mean_RPKM)) +
-  geom_bar(stat='identity')
-```
+die Unterschiede pro Organ sehr unterschiedlich, bei welchen eher ähnlich? Wie könnte man Gene auswählen, die möglichst unterschiedlich sind?
 
 
 ## 3. Zeitliche Entwicklung der Genexpression
@@ -232,11 +219,3 @@ Aufgabe:
 3. Für die Schnellen: was für Plots könntest du für den Datensatz sonst noch generieren?
 Werde kreativ und probiere einfach mal ein paar Alternativen aus!
 
-
-```{r}
-# Beispiel zu 3.
-unique(data$Gen)
-subset = filter(data, Gen == "HBG2")
-ggplot(subset, aes(x = Gewebe, y = RPKM)) +
-  geom_boxplot()
-```

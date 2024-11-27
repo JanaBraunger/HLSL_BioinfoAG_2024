@@ -1,6 +1,6 @@
 ---
 title: "How_To_Norm_Distribution"
-author: "Biomathe_AG"
+author: "Bioinfo_AG"
 date: "`r Sys.Date()`"
 output: html_document
 ---
@@ -47,8 +47,6 @@ dataframe2 = data.frame(val = rnorm(1000, 110, 4.5), sample = 'm2')
 dataframe3 = rnorm(1000, 45, 2)
 ```
 
-qq plot
-auf unseren Daten anschauen
 
 ## t-test
 
