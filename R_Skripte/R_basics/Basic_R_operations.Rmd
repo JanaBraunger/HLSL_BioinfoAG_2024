@@ -1,0 +1,85 @@
+---
+title: "Basic_R_Operationen"
+author: "Biomathe_AG_Mentoren"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Generelles
+Generell hilfreich bei allen möglichen "basic" Problemen ist das Buch "An Introduction to R", das ihr auf der Webseite https://intro2r.com finden könnt. Generell könnt ihr auch die Dokumentation zu einem spezifischen Package oder auch einer Funktion finden, indem ihr "help(Funktion)" oder "?Funktion" in der Konsole eingebt.
+
+R ist eine Programmiersprache, die für Datenanalyse und Datenmanipulation geschrieben wurde. Im Allgemeinen besitzt sie weniger Funktionalität als Python, jedoch ist sie vor allem für Anfänger einfacher zu verwenden und bezogen auf die Datenanalyse gibt es auch einige Funktionen, die nur für R geschrieben sind.
+
+RStudio ist eine IDE (Integrated Development Environment), die euch das Coden erleichtert, indem ihr z.B. auf der rechten Seite alle Variablen seht und generell einen Überblick über eure Ordner-Strukturen und auch alle installierten Packages habt. Zudem gibt es hier die schöne Farbcodierung im Code, damit ihr z.B. Variablen, Klammern und Funktionen schnell unterscheiden könnt.
+
+In RStudio gibt es einmal die Console, das Terminal, aber auch das Interface für RMarkdowns und R-Skripte. Ihr könnt direkt in der Console coden, aber gewöhnt euch am besten an, direkt im RMarkdown oder R-Skript zu coden und euren Code dann nur noch über Str+Enter oder Cmd+Enter auszuführen. Dann habt ihr unter Umständen direkt einen Code, der von Anfang bis zum Ende funktioniert.
+
+
+## R Mathe
+# 1
+Einige Aufgaben, um euch mit R vertraut zu machen. Falls ihr irgendwelche Probleme habt, findet ihr viele Ansätze oder sogar Lösungen im Buch, welches oben verlinkt ist.
+
+Berechnet für die Zahl 12.43 den natürlichen Logarithmus, den Logarithmus zur Basis 10, den Logarithmus zur Basis 2 und die quadratische Wurzel.
+
+```{r cars}
+summary(cars)
+```
+
+# 2
+Berechnet den Flächeninhalt eines Kreises mit einem Durchmesser von 20cm, die Einheit könnt ihr diesmal weglassen. Speichert das Ergebnis unter der Variable "Flächeninhalt_Kreis"
+
+
+# 3 
+Berechnet die kubische/dritte Wurzel von 14*0.51.
+
+## Vektoren
+# 4
+Vektoren sind eine Reihe an Elementen (oder Komponenten), die alle denselben Datentypen haben. Generell kann man Vektoren auf viele verschiedene Arten und Weisen erstellen, aber die einfachste ist die "concatenate" Funktion 'c()'. Guckt, was passiert, wenn ihr eine Zahl mit einem String in einem Vektor verbindet. Nutzt diese FUnktion nun, um einen Vektor zu erstellen, der das Gewicht von 10 Kindern enthält: 69, 62, 57, 59, 59, 64, 56, 66, 67, 66 und unter der Variable "Gewicht" abzuspeichern.
+ 
+# 5
+Errechnet nun den Mittelwert, die Varianz, die Standardabweichung, die Wertemenge und auch die Anzahl der Kinder, deren Gewicht im Vektor inbegriffen ist. 
+Versucht nun, das Gewicht der ersten 5 Kinder zu extrahieren und in einer Variable abzuspeichern, die "erste_fuenf" heißt. Zum Indizieren braucht ihr die eckigen Klammern [].
+
+# 6
+Mit der "concatenate" Funktion erstellt ihr nun einen anderen Vektor, den ihr Hoehe nennt und speichert für die 10 Kinder nun die Größe ab: 112, 102, 83, 84, 99, 90, 77, 112, 133, 112. Benutzt die 'summary()' Funktion und guckt, welche Daten euch ausgegeben werden. Extrahiert nun die Größe des 2., 3., 8. und 10. Kindes und speichert sie in der Variable "irgendein_Kind" ab. Versucht auch, alle Größen zu extrahieren, die kleiner oder gleich 99 cm sind. Speichert diese unter "kleinere_Kinder" ab
+ 
+# 7 
+Mit dieser Information könnt ihr nun den BMI für jedes Kind berechnen. Dieser ist definiert durch $\displaystyle \frac{Gewicht [kg]}{Höhe^2 [m]}$. Dies müsst ihr aber nicht für jedes Kind einzeln machen, sondern könnt dies auch direkt über den gesamten Vektor machen. Dies nennt man Vektorisieren. Was passiert, wenn die beiden Vektoren nicht dieselbe Länge haben? Versucht die Vektorisierung mit den Vektoren "irgendein_Kind" und "Gewicht". Was ist, wenn ihr nur eine Zahl verwendet und z.B. das Gewicht mit 2 multipliziert, funktioniert das?
+ 
+
+# 8
+Ihr könnt Sequenzen mit der Funktion 'seq()' erstellen. Versucht mal, eine Sequenz/einen Vektor zu erstellen, der Zahlen von 0 bis 1 enthält, die jeweils einen Abstand von 0.1 haben. Speichert diesen Vektor in der Variable "seq1" ab.
+ 
+# 9 
+Versucht dies nun für eine Sequenz von 10 bis 1 mit einem Abstand von 0.5 und speichert diese in der Variable seq2. Die 'rev()' Funktion könnte hierfür hilfreich sein.
+ 
+Versucht nun, folgende Sequenzen zu erstellen. Manchmal braucht ihr auch die 'rep()' Funktion:
+1 2 3 1 2 3 1 2 3
+“a” “a” “a” “c” “c” “c” “e” “e” “e” “g” “g” “g”
+“a” “c” “e” “g” “a” “c” “e” “g” “a” “c” “e” “g”
+1 1 1 2 2 2 3 3 3 1 1 1 2 2 2 3 3 3
+1 1 1 1 1 2 2 2 2 3 3 3 4 4 5
+7 7 7 7 2 2 2 8 1 1 1 1 1
+ 
+
+# 8 
+Ordnet die Werte, die ihr in der Variable "Hoehe" abgespeichert habt nach ihrer Größe (klein zu groß) und weist den neuen Vektor der Variable "hoehe_sortiert" zu. 
+
+# 9 
+Erstellt nun einen Vektor mit dem Namen "Kinder_Namen" für die 10 Kinder, der diese Namen enthält: "Alfred", "Barbara", "James", "Jane", "John", "Judy", "Louise", "Mary", "Ronald", "William".
+ 
+# 10
+Eine nützliche und auch recht häufige Aufgabe ist, die Werte einer Variable nach den Werten einer anderen zu sortieren. Hierfür braucht ihr die 'order()' Funktion, die ihr mit den eckigen Klammern [] (zum Indizieren) verknüpft. Sortiert die Namen nach der Größe der Kinder (klein nach groß) und speichert den neuen Vektor in der Variable "Namen_sortiert".
+
+# 11
+Ordne die Namen der Kinder nun absteigend nach Gewicht und speichere den Vektor in der Variable "Gewicht_absteigend". Welches ist das schwerste Kind und welches das leichteste?
+
+# 12
+Generell werden fehlende Werte in R mit NA (not available or not applicable) ersetzt. Manchmal führt dies zu Konflikten mit Berechnungen oder beim Ausführen von Funktionen. Versucht den Vektor "mein_Vektor" mit den Werten: 2, 4, 1, 6, 8, 5, NA, 4, 7 zu erstellen und versucht, die 'mean()' Funktion hierauf auszuführen. Was ist das Ergebnis? Schaut euch die Dokumentation der Funktion an und überlegt euch, wie ihr den Mittelwert berechnen könntet und den fehlenden Wert ignoriert.
+ 
+# 13
+Listet nun alle Variablen, die ihr erstellt habt und benutzt die 'rm()' (remove) Funktion, um die Variable seq1 zu löschen.
