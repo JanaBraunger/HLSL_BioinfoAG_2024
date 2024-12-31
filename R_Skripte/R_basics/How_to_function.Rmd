@@ -1,0 +1,44 @@
+---
+title: "Programming_in_R"
+author: "Biomathe_AG_Mentoren"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Schreiben einer Funktion
+Wenn ihr eine bestimmte Aktion mehrfach ausführen wollt, ergibt es Sinn, Funktionen zu schreiben, die ihr dann einfach aufrufen könnt. Ein typisches Beispiel für Funktionen sind, die schon implementiert sind, sind 'mean()' oder auch 'median()', die ich schon benutzt habt.
+In R könnt ihr wie folgt Funktionen schreiben:
+
+```{r how to function, include=TRUE}
+norm <- function(x) sqrt(x*x)
+```
+Wenn die Funktion mehrere Zeilen lang sein sollte, müsst ihr geschweifte Klammern um den sogenannten "Körper der Funktion" setzen:
+```{r how to function2, include=TRUE}
+norm2 <- function(x) {
+            val = x*x
+            print(sqrt(val))
+        }
+```
+
+## Aufgaben
+Nun seid ihr dran:
+1. Erstellt eine Funktion, die euch den Flächeninhalt eines Kreises berechnet. 
+Testet eure Funktion, indem ihr den Flächeninhalt eines Kreises berechnet, der einen Durchmesser von 3.4 cm besitzt. Könnt ihr eure Funktion auch auf einen Vektor von Daten anwenden?
+
+2. Schreibt eine Funktion, die euch Fahrenheit in Celsius umrechnet. Der Output eurer Funktion sollte folgendes Format besitzen: "Fahrenheit: 'Wert in Fahrenheit' ist äquivalent zu 'Wert in Celsius' Grad Celsius".
+
+3. Erstellt einen Vektor mit normalverteilten Daten mit der Länge 100, dem Mittelwert 35 und einer Standardabweichung von 15. Schreibt eine Funktion, die den Mittelwert, den Median und die Range des Vektors errechnet und euch mit einem jeweils passenden Label ausgibt. Ergänzt den Funktionskörper nun dahingehend, dass er auch ein Histogramm der Werteverteilung in Prozent zeichnet und fügt eine Dichteverteilung hinzu. 
+
+4. Schreibt nun eine Funktion, die euch den Median eines Vektors an Zahlen errechnet (benutzt nicht die 'median()' Funktion). Achtet dabei darauf, was passiert, wenn ihr eine gerade Anzahl an Werten besitzt. Benutzt hierfür die modulo Funktion von 2, die euch den Rest bei einem gegebenen Teiler ausgibt, z.B. 7%%3 wird euch 1 ausgeben.
+
+ 
+
+5. Ihr seid Mikrobiologen und wollt wissen, wie viele Bakterienkolonien ihr nach einer bestimmten Zeit in eurer Petrischale habt, wenn ihr ein Antibiotikum hinzugebt. Die Anzahl der Kulturen ist so definiert.
+
+ $\displaystyle N_t = N_t*e^{r*(1-\frac{N_t}{K})}$
+ 
+Hier ist $N_t$ die Populationsgröße zur Zeit t, r ist die Populationswachtumsrate und K ist die Konzentration am Antibiotikum. Schreibt eine Funktion, die diese Modell simultiert und untersucht den Effekt von R und der Initialpopulationsgröße $N_0$ auf die Funktionswerte. Setzt den Standardwert für K auf 100, jedoch soll dieser beim Aufrufen der Funktion auch geändert werden können. Eure Funktion soll also folgende Variablen erhalten: $N_0$, die Anzahl an Koloien am Anfang, $r$, die Wachstumsrate pro Zeiteinheit $t$, $t$, die Zeit, und $K$, die Konzentration des Antibiotikums, welche automatisch 100 betragen soll.
