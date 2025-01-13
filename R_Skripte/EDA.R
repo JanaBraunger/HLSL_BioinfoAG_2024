@@ -1,10 +1,6 @@
-# Transkriptom-Daten geben uns Auskunft darüber, welche Gene wie stark exprimiert werden. Nach der Prozessierung der Roh-Sequenzierdaten, erhalten wir als Ergebnis eine Tabelle, in der jedes Gen für jede gemessene Probe einen Expressionswert hat. Dieser ist z.B. TPM (transcripts per kilobase million) oder FPKM (fragments per kilobase million).
-# 
-# Falls ihr euch eigene Datensätze suchen wollt:
-# GEO ist eine öffentliche Datenbank für RNAseq-Datensätze.
-# https://www.ncbi.nlm.nih.gov/geo/
+# Proteom-Daten geben darüber Auskunft, welche Proteine wie stark in der gemessenen Probe exprimiert, d.h. vorhanden, sind.
   
-# PRIDE ist eine öffentliche Datenbank für Proteom-Datensätze.
+# Falls ihr euch eigene Datensätze suchen wollt: PRIDE ist eine öffentliche Datenbank für Proteom-Datensätze.
 # https://www.ebi.ac.uk/pride/
 # 
 # 
@@ -12,61 +8,57 @@
 # Wie viele Gene werden exprimiert?
 #   Wie viele Proben wurden gemessen?
 #   Welche Vergleiche könnten interessant sein?
-#   Welche Gene werden besonders stark/schwach exprimiert?
-#   Welche Gene unterscheiden sich stark zwischen verschiedenen Proben?
+#   Welche Proteine werden besonders stark/schwach exprimiert?
+#   Welche Proteine unterscheiden sich stark zwischen verschiedenen Proben?
 #   
 #   Verschiedene Arten von Graphen sind dabei hilfreich, z.B.:
-#   - Balkendiagramme (bar plots)
+# - Balkendiagramme (bar plots)
 # - Histogramme
 # - box plots
 # - Heatmaps
 # - volcano plot
 # 
-# 
-# Wir fangen an, indem wir die benötigten packages installieren und laden
+#   Außerdem benötigen wir einfache statistische Tests:
+#   - T-Test
+#   
 
-#install.packages("pheatmap")
-library(pheatmap)
+
 
 
 # Datensätze einlesen:
-#RNA-seq Daten: Lungenkrebs-Zelllinien
-rna_seq = read.csv("K:/Ergebnisse/LS_testing/1_PhD/HLSL/transcriptome_proteome_dataset/lung_cell_lines_RNA_seq.csv", row.names = 1)
+# verschiedene Lungenkrebs-Zelllinien wurden gemessen (RNAseq und Protein)
+# Wir fokussieren uns vorerst nur auf die Protein-Daten.
+protein_daten = read.csv("K:/Ergebnisse/LS_testing/1_PhD/HLSL/transcriptome_proteome_dataset/lung_cell_lines_proteome.csv", row.names = 1)
 
-head(rna_seq)
+
+head(protein_daten)
 #column names = cell line names
 #row names = gene names
-#values = TPM of gene expression
+#values = Intensität der Proteine
 
-dim(rna_seq)
-
-#Proteom Daten:
-#proteome = read.csv("K:/Ergebnisse/LS_testing/1_PhD/HLSL/transcriptome_proteome_dataset/lung_cell_lines_proteome.csv", row.names = 1)
-#head(proteome)
-#column names = cell line names
-#row names = gene names
-#values = protein intensities
-#dim(proteome)
+dim(protein_daten)
 
 #Beschreibung der Zell-Linien
 metadata = read.csv("K:/Ergebnisse/LS_testing/1_PhD/HLSL/transcriptome_proteome_dataset/lung_cell_lines_description.csv", row.names = 1)
 head(metadata)
 dim(metadata)
+# Welche Informationen haben wir zu den Zellen?
 
-#do we have information for all cell lines?
+
+#Stimmen die Namen überein?
 #Die %in% und table() Funktionen
-table(colnames(rna_seq) %in% metadata$model_name)
+colnames(protein_daten)
+metadata$model_name
 
 
-#table(colnames(proteome) %in% metadata$model_name)
+colnames(protein_daten) %in% metadata$model_name
+table(colnames(protein_daten) %in% metadata$model_name)
 
-
-
-#welche Informationen haben wir über die Zell-Linien?
-colnames(metadata)
 
 #Welche Organe sind abgedeckt? Die unique() Funktion
 unique(metadata$tissue) #nur Lunge
+
+# Für welche weiteren Spalten könnte die unique() Funktion interessant sein?
 
 # Die table() Funktion
 table(metadata$tissue_status)
@@ -80,19 +72,32 @@ table(metadata$gender)
 table(metadata$ethnicity)
 table(metadata$smoking_status)
 
-# Histogram
+# Histogramme:
+# Histogramme zeigen die Verteilung von Daten, d.h. welche Werte wie oft vorkommen
+# Nur für numerische Daten geeignet!
+hist(metadata$age_at_sampling)
+
+# verschiedene Daten-Typen (Klassen)
+# character (Text), numeric (Zahlen), logical (True/False)
+class(metadata$age_at_sampling)
+class(protein_daten$A427)
+
 hist(as.numeric(metadata$age_at_sampling))
+
+
 # 
-#Wie viele mRNAs wurden in jeder Probe gemessen?
+#Wie viele Proteine wurden in jeder Probe gemessen?
 # Funktionen: !is.na(), sum(), apply()
 # barplot() und boxplot()
+
+
+
+
 barplot(apply(rna_seq, 2, function(x) sum(!is.na(x))))
 boxplot(apply(rna_seq, 2, function(x) sum(!is.na(x))))
 
 
-# Wie viele Proteine wurden in jeder Probe gefunden?
-#(apply(proteome, 2, function(x) sum(!is.na(x))))
-#boxplot(apply(proteome, 2, function(x) sum(!is.na(x))))
+
 
 # Welche Fragestellungen ergeben sich aus der EDA?
 #Ein interessanter Vergleich könnte zum Beispiel sein, ob sich beim Lungenkrebs die primären Tumore von den Metastasen unterscheiden?
@@ -100,20 +105,31 @@ boxplot(apply(rna_seq, 2, function(x) sum(!is.na(x))))
 
 
 # Heatmaps können dabei helfen, verschiedene Gruppen zu identifizieren:
-pheatmap(na.omit(rna_seq), scale = "row", show_rownames = F, show_colnames = F,color = colorRampPalette(c("blue", "white", "red"))(100), breaks = seq(-5,5,10/100))
+# Die "base" Funktion heatmap() erfüllt diesen Zweck auch, aber ich finde das package pheatmap etwas schöner und einfacher
+# 
+#install.packages("pheatmap")
+library(pheatmap)
+pheatmap(na.omit(protein_daten))
 
 #Wir können die columns mit hilfreichen Informationen beschriften:
 #Dazu nutzen wir die metadaten
 rownames(metadata) = metadata$model_name
 metadata$age_at_sampling = as.numeric(metadata$age_at_sampling)
 
-pheatmap(na.omit(rna_seq), scale = "row", show_rownames = F, show_colnames = F,
+pheatmap(na.omit(protein_daten), scale = "row", show_rownames = F, show_colnames = F,
          color = colorRampPalette(c("blue", "white", "red"))(100), breaks = seq(-5,5,10/100),
-         annotation_col = metadata[,c("cancer_type", "smoking_status", "age_at_sampling", "gender"), drop = F])
+         annotation_col = metadata[,c("cancer_type"), drop = F])
+
+# Falls die Farben nicht ideal sind:
+unique(metadata$cancer_type)
+bessere_farben = list(cancer_type = c())
+
+pheatmap(na.omit(protein_daten), scale = "row", show_rownames = F, show_colnames = F,
+         color = colorRampPalette(c("blue", "white", "red"))(100), breaks = seq(-5,5,10/100),
+         annotation_col = metadata[,c("cancer_type"), drop = F], annotation_colors = bessere_farben)
 
 # Wie könnten wir mehrere Informationen gleichzeitig beschriften?
 
-#pheatmap(na.omit(proteome), scale = "row",show_rownames = F, show_colnames = F, color = colorRampPalette(c("blue", "white", "red"))(100), breaks = seq(-5,5,10/100), annotation_col = metadata[,"smoking_status", drop = F])
 
 # Statistik:Welche Gene sind unterschiedlich stark exprimiert?
 # z.B. SCLC vs. NSCLC
@@ -121,15 +137,19 @@ pheatmap(na.omit(rna_seq), scale = "row", show_rownames = F, show_colnames = F,
 # Wir wollen den "fold-change" und den "p-value" für jedes Gen herausfinden
 # --> Wie viel mal mehr/weniger ist jedes Gen exprimiert und ist dies signifikant?
 
-rownames(metadata)
-head(rna_seq[,c("ABC1","DMS114")])
-head(rna_seq[,rownames(metadata)[1:4]])
+rownames(metadata) # Das sind alle Namen der Zelllinien
+head(protein_daten[,c("ABC1","DMS114")])
+head(protein_daten[,rownames(metadata)[1:4]])
 
-rna_seq_sclc_nsclc = rna_seq[,c(rownames(metadata)[metadata$cancer_type == "Small Cell Lung Carcinoma"],rownames(metadata)[metadata$cancer_type == "Non-Small Cell Lung Carcinoma"])]
+#wir wollen nur Zelllinien behalten, die entweder SCLC oder NSCLC sind:
+rownames(metadata)[metadata$cancer_type == "Small Cell Lung Carcinoma"]
 
-pheatmap(na.omit(rna_seq_sclc_nsclc), scale = "row", show_rownames = F, show_colnames = F,
+protein_sclc_nsclc = protein_daten[,c(rownames(metadata)[metadata$cancer_type == "Small Cell Lung Carcinoma"],rownames(metadata)[metadata$cancer_type == "Non-Small Cell Lung Carcinoma"])]
+head(protein_sclc_nsclc)
+
+pheatmap(na.omit(protein_sclc_nsclc), scale = "row", show_rownames = F, show_colnames = F,
          color = colorRampPalette(c("blue", "white", "red"))(100), breaks = seq(-5,5,10/100),
-         annotation_col = metadata[,c("cancer_type"), drop = F])
+         annotation_col = metadata[,c("cancer_type"), drop = F], annotation_colors = bessere_farben)
 
 
 
@@ -138,8 +158,10 @@ pheatmap(na.omit(rna_seq_sclc_nsclc), scale = "row", show_rownames = F, show_col
 
 # fold-change = mean(group1)/mean(group2)
 # 1. Berechne für jedes Gen den Mittelwert in Gruppe 1 (SCLC)
+# mean(), apply()
 # 2. Berechne für jedes Gen den Mittelwert in Gruppe 2 (NSCLC)
 # 3. Teile die beiden Mittelwerte für jedes Gen durcheinander
+# mean1-mean2
 # Wie sieht die Verteilung dieser "fold-changes" aus?
 
 # Volcano Plot
@@ -147,7 +169,7 @@ pheatmap(na.omit(rna_seq_sclc_nsclc), scale = "row", show_rownames = F, show_col
 # Gene Set Enrichment
 
 
-## PROTEOM:
+## TRANSKRIPTOM:
 # Sehen wir ähnliche Unterschiede im Proteom?
 # Wie sehr korrelieren Transkriptom und Proteom?
 # Gibt es Gene, die zwar stark exprimiert, aber anscheinend nicht translatiert werden? Oder andersherum?
@@ -155,6 +177,8 @@ pheatmap(na.omit(rna_seq_sclc_nsclc), scale = "row", show_rownames = F, show_col
 
 
 
+#RNA-seq Daten: Lungenkrebs-Zelllinien
+rna_seq = read.csv("K:/Ergebnisse/LS_testing/1_PhD/HLSL/transcriptome_proteome_dataset/lung_cell_lines_RNA_seq.csv", row.names = 1)
 
 
 
